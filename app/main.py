@@ -2,11 +2,16 @@ import sys
 
 
 def main():
-    # Uncomment this block to pass the first stage
     sys.stdout.write("$ ")
-
+    
     # Wait for user input
-    input()
+    command = input()
+     
+    is_invalid_command = True
+    if is_invalid_command:
+        sys.stdout.write(f"{command}: command not found\n")
+    
+    return main()
 
 
 if __name__ == "__main__":
