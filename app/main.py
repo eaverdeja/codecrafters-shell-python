@@ -9,8 +9,7 @@ def main():
     pieces = command.split(" ")
     match pieces[0]:
         case "exit":
-            code = pieces[1]
-            sys.exit(code)
+            sys.exit(0)
         case _:
             sys.stdout.write(f"{command}: command not found\n")
             
