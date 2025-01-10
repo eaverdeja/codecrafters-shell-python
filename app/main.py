@@ -4,13 +4,16 @@ import sys
 def main():
     sys.stdout.write("$ ")
     
-    # Wait for user input
     command = input()
      
-    is_invalid_command = True
-    if is_invalid_command:
-        sys.stdout.write(f"{command}: command not found\n")
-    
+    pieces = command.split(" ")
+    match pieces[0]:
+        case "exit":
+            code = pieces[1]
+            sys.exit(code)
+        case _:
+            sys.stdout.write(f"{command}: command not found\n")
+            
     return main()
 
 
