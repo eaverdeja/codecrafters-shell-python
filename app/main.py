@@ -8,6 +8,9 @@ def main():
      
     pieces = command.split(" ")
     match pieces[0]:
+        case "echo":
+            words = pieces[1:]
+            sys.stdout.write(" ".join(words) + "\n")
         case "exit":
             sys.exit(0)
         case _:
