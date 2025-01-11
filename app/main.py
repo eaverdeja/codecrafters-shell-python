@@ -13,17 +13,17 @@ def locate_executable(command):
 
 
 def handle_type(args):
-    word = args[0]
+    command = args[0]
 
-    if word in builtins:
-        print(f"{word} is a shell builtin")
+    if command in builtins:
+        print(f"{command} is a shell builtin")
         return
 
-    if executable := locate_executable(word):
-        print(f"{word} is {executable}")
+    if executable := locate_executable(command):
+        print(f"{command} is {executable}")
         return
 
-    print(f"{word}: not found")
+    print(f"{command}: not found")
 
 
 def handle_echo(args):
@@ -51,8 +51,7 @@ def main():
 
         if command in builtins:
             builtins[command](args)
-            continue
-        elif executable := locate_executable(command):
+        elif locate_executable(command):
             subprocess.run([command, *args])
         else:
             print(f"{command}: command not found")
