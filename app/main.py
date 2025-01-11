@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import shlex
 
 
 def locate_executable(command):
@@ -12,39 +13,39 @@ def locate_executable(command):
             return file_path
 
 
-def handle_type(args):
+def handle_type(args, out):
     command = args[0]
 
     if command in builtins:
-        print(f"{command} is a shell builtin")
+        out.write(f"{command} is a shell builtin\n")
         return
 
     if executable := locate_executable(command):
-        print(f"{command} is {executable}")
+        out.write(f"{command} is {executable}\n")
         return
 
-    print(f"{command}: not found")
+    out.write(f"{command}: not found\n")
 
 
-def handle_echo(args):
-    words = args[0:]
-    print(" ".join(words))
+def handle_echo(args, out):
+    tokens = shlex.split(" ".join(args))
+    out.write(" ".join(tokens) + "\n")
 
 
-def handle_exit(args):
+def handle_exit(args, out):
     sys.exit(int(args[0]) if args else 0)
 
 
-def handle_pwd(args):
-    print(os.getcwd())
+def handle_pwd(args, out):
+    out.write(os.getcwd() + "\n")
 
 
-def handle_cd(args):
+def handle_cd(args, out):
     path = str(args[0]).replace("~", os.environ.get("HOME", ""))
     try:
         os.chdir(path)
     except FileNotFoundError as e:
-        print(f"cd: {path}: {e.strerror}")
+        out.write(f"cd: {path}: {e.strerror}\n")
 
 
 builtins = {
@@ -63,12 +64,23 @@ def main():
 
         command, *args = input().split(" ")
 
+        out, err = sys.stdout, sys.stderr
+        shouldCloseOut = False
+        if "1>" in args or ">" in args:
+            idx = args.index("1>") if "1>" in args else args.index(">")
+            args, file_name = args[:idx], args[idx + 1]
+            out = open(file_name, "w+")
+            shouldCloseOut = True
+
         if command in builtins:
-            builtins[command](args)
+            builtins[command](args, out=out)
         elif locate_executable(command):
-            subprocess.run([command, *args])
+            subprocess.run([command, *args], stdout=out, stderr=err)
         else:
-            print(f"{command}: command not found")
+            out.write(f"{command}: command not found\n")
+
+        if shouldCloseOut:
+            out.close()
 
 
 if __name__ == "__main__":
