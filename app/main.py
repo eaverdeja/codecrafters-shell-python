@@ -39,11 +39,19 @@ def handle_pwd(args):
     print(os.getcwd())
 
 
+def handle_cd(args):
+    try:
+        os.chdir(args[0])
+    except FileNotFoundError as e:
+        print(f"cd: {args[0]}: {e.strerror}")
+
+
 builtins = {
     "echo": handle_echo,
     "exit": handle_exit,
     "type": handle_type,
     "pwd": handle_pwd,
+    "cd": handle_cd,
 }
 
 
