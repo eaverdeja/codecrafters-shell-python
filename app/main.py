@@ -40,10 +40,11 @@ def handle_pwd(args):
 
 
 def handle_cd(args):
+    path = str(args[0]).replace("~", os.environ.get("HOME", ""))
     try:
-        os.chdir(args[0])
+        os.chdir(path)
     except FileNotFoundError as e:
-        print(f"cd: {args[0]}: {e.strerror}")
+        print(f"cd: {path}: {e.strerror}")
 
 
 builtins = {
