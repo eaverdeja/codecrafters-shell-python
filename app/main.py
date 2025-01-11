@@ -1,63 +1,61 @@
 import sys
 import os
-
-BUILTIN_COMMANDS = [
-    "echo",
-    "exit",
-    "type",
-]
+import subprocess
 
 
-def list_executables(path):
-    executables = []
-    if os.path.exists(path) and os.path.isdir(path):
-        for file in os.listdir(path):
-            file_path = os.path.join(path, file)
-            # Check if file is executable
-            if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
-                executables.append(file)
-    return executables
+def locate_executable(command):
+    path = os.environ.get("PATH", "")
+    for directory in path.split(os.pathsep):
+        file_path = os.path.join(directory, command)
+
+        if os.path.isfile(file_path) and os.access(file_path, os.X_OK):
+            return file_path
 
 
-def handle_type_command(pieces):
-    word = pieces[1]
+def handle_type(args):
+    word = args[0]
 
-    if word in BUILTIN_COMMANDS:
-        sys.stdout.write(f"{word} is a shell builtin\n")
+    if word in builtins:
+        print(f"{word} is a shell builtin")
         return
 
-    path_for_word = None
-    path_list = os.environ["PATH"].split(os.pathsep)
-    for path in path_list:
-        executables = list_executables(path)
-        if word in executables:
-            path_for_word = f"{path}/{word}"
-
-    if path_for_word:
-        sys.stdout.write(f"{word} is {path_for_word}\n")
+    if executable := locate_executable(word):
+        print(f"{word} is {executable}")
         return
 
-    sys.stdout.write(f"{word}: not found\n")
+    print(f"{word}: not found")
+
+
+def handle_echo(args):
+    words = args[0:]
+    print(" ".join(words))
+
+
+def handle_exit(args):
+    sys.exit(int(args[0]) if args else 0)
+
+
+builtins = {
+    "echo": handle_echo,
+    "exit": handle_exit,
+    "type": handle_type,
+}
 
 
 def main():
-    sys.stdout.write("$ ")
+    while True:
+        sys.stdout.write("$ ")
+        sys.stdout.flush()
 
-    command = input()
+        command, *args = input().split(" ")
 
-    pieces = command.split(" ")
-    match pieces[0]:
-        case "type":
-            handle_type_command(pieces)
-        case "echo":
-            words = pieces[1:]
-            sys.stdout.write(" ".join(words) + "\n")
-        case "exit":
-            sys.exit(0)
-        case _:
-            sys.stdout.write(f"{command}: command not found\n")
-
-    return main()
+        if command in builtins:
+            builtins[command](args)
+            continue
+        elif executable := locate_executable(command):
+            subprocess.run([command, *args])
+        else:
+            print(f"{command}: command not found")
 
 
 if __name__ == "__main__":
