@@ -35,10 +35,15 @@ def handle_exit(args):
     sys.exit(int(args[0]) if args else 0)
 
 
+def handle_pwd(args):
+    print(os.getcwd())
+
+
 builtins = {
     "echo": handle_echo,
     "exit": handle_exit,
     "type": handle_type,
+    "pwd": handle_pwd,
 }
 
 
