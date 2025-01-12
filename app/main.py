@@ -62,11 +62,15 @@ def handle_redirects(args):
     if "2>" in args:
         idx = args.index("2>")
         args, file_name = args[:idx], args[idx + 1]
-        err = open(file_name, "w+")
+        err = open(file_name, "w")
+    elif "1>>" in args or ">>" in args:
+        idx = args.index("1>>") if "1>>" in args else args.index(">>")
+        args, file_name = args[:idx], args[idx + 1]
+        out = open(file_name, "a")
     elif "1>" in args or ">" in args:
         idx = args.index("1>") if "1>" in args else args.index(">")
         args, file_name = args[:idx], args[idx + 1]
-        out = open(file_name, "w+")
+        out = open(file_name, "w")
 
     return args, out, err
 
