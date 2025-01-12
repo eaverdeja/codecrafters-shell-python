@@ -58,22 +58,26 @@ builtins = {
 
 def handle_redirects(args):
     out, err = sys.stdout, sys.stderr
-    if "2>" in args:
-        idx = args.index("2>")
-        args, file_name = args[:idx], args[idx + 1]
-        err = open(file_name, "w")
-    elif "2>>" in args:
-        idx = args.index("2>>")
-        args, file_name = args[:idx], args[idx + 1]
-        err = open(file_name, "a")
-    elif "1>>" in args or ">>" in args:
-        idx = args.index("1>>") if "1>>" in args else args.index(">>")
-        args, file_name = args[:idx], args[idx + 1]
-        out = open(file_name, "a")
-    elif "1>" in args or ">" in args:
-        idx = args.index("1>") if "1>" in args else args.index(">")
-        args, file_name = args[:idx], args[idx + 1]
-        out = open(file_name, "w")
+
+    redirects = {
+        "2>": (2, "w"),
+        "2>>": (2, "a"),
+        "1>>": (1, "a"),
+        ">>": (1, "a"),
+        "1>": (1, "w"),
+        ">": (1, "w"),
+    }
+
+    for operator, (file_descriptor, mode) in redirects.items():
+        if operator in args:
+            idx = args.index(operator)
+            args, file_name = args[:idx], args[idx + 1]
+
+            if file_descriptor == 1:
+                out = open(file_name, mode)
+            else:
+                err = open(file_name, mode)
+            break
 
     return args, out, err
 
