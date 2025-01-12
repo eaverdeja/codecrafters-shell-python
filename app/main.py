@@ -28,8 +28,7 @@ def handle_type(args, out):
 
 
 def handle_echo(args, out):
-    tokens = shlex.split(" ".join(args))
-    out.write(" ".join(tokens) + "\n")
+    out.write(" ".join(args) + "\n")
 
 
 def handle_exit(args, out):
@@ -91,7 +90,7 @@ def main():
         sys.stdout.write("$ ")
         sys.stdout.flush()
 
-        command, *args = input().split(" ")
+        command, *args = shlex.split(input())
 
         args, out, err = handle_redirects(args)
 
