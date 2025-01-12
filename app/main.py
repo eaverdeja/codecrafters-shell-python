@@ -57,6 +57,27 @@ builtins = {
 }
 
 
+def handle_redirects(args):
+    out, err = sys.stdout, sys.stderr
+    if "2>" in args:
+        idx = args.index("2>")
+        args, file_name = args[:idx], args[idx + 1]
+        err = open(file_name, "w+")
+    elif "1>" in args or ">" in args:
+        idx = args.index("1>") if "1>" in args else args.index(">")
+        args, file_name = args[:idx], args[idx + 1]
+        out = open(file_name, "w+")
+
+    return args, out, err
+
+
+def cleanup_redirects(out, err):
+    if out.fileno != sys.stdout.fileno:
+        out.close()
+    if err.fileno != sys.stderr.fileno:
+        err.close()
+
+
 def main():
     while True:
         sys.stdout.write("$ ")
@@ -64,13 +85,7 @@ def main():
 
         command, *args = input().split(" ")
 
-        out, err = sys.stdout, sys.stderr
-        shouldCloseOut = False
-        if "1>" in args or ">" in args:
-            idx = args.index("1>") if "1>" in args else args.index(">")
-            args, file_name = args[:idx], args[idx + 1]
-            out = open(file_name, "w+")
-            shouldCloseOut = True
+        args, out, err = handle_redirects(args)
 
         if command in builtins:
             builtins[command](args, out=out)
@@ -79,8 +94,7 @@ def main():
         else:
             out.write(f"{command}: command not found\n")
 
-        if shouldCloseOut:
-            out.close()
+        cleanup_redirects(out, err)
 
 
 if __name__ == "__main__":
