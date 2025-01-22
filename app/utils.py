@@ -1,4 +1,5 @@
 import os
+import logging
 
 
 def locate_executable(command):
@@ -26,3 +27,22 @@ def list_executables():
                 executables.append(file_name)
 
     return executables
+
+
+def setup_logging():
+    log_file = os.path.join(os.path.curdir, "tmp/autocompleter.log")
+
+    logger = logging.getLogger("Autocompleter")
+    logger.setLevel(logging.DEBUG)
+
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.DEBUG)
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    file_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+
+    return logger
