@@ -3,6 +3,7 @@
 import readline
 
 from app.handlers import builtins
+from app.utils import list_executables
 
 
 class Autocompleter:
@@ -16,9 +17,11 @@ class Autocompleter:
             readline.parse_and_bind("tab: complete")
 
         readline.set_completer(self.complete)
-
-        self.commands = set(builtins.keys())
         self.matches = []
+
+        commands = list(builtins.keys()) + list_executables()
+        # Sort commands by length - break ties with alphabetical order
+        self.commands = sorted(set(commands), key=lambda x: (len(x), x))
 
     def complete(self, text, state):
         current_word = text.split(" ")[-1]
