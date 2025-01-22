@@ -2,6 +2,7 @@ import sys
 import subprocess
 import shlex
 
+from .autocomplete import Autocompleter
 from .handlers import builtins
 from .utils import locate_executable
 
@@ -40,6 +41,9 @@ def cleanup_redirects(out, err):
 
 
 def main():
+    # Sets up autocompletion
+    Autocompleter()
+
     while True:
         sys.stdout.write("$ ")
         sys.stdout.flush()
