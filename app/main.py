@@ -42,7 +42,7 @@ def cleanup_redirects(out, err):
 
 def main():
     # Sets up autocompletion
-    Autocompleter()
+    Autocompleter(out=sys.stdout)
 
     while True:
         sys.stdout.write("$ ")
